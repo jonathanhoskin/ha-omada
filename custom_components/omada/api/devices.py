@@ -5,11 +5,15 @@ from typing import Any, Dict
 from .api import (APIItems, APIItem)
 
 END_POINT = "/devices"
+GATEWAY_DETAILS_END_POINT = "/gateways/%key"
 AP_DETAILS_END_POINT = "/eaps/%key"
 FIRMWARE_END_POINT = "/devices/%key/firmware"
 
+GATEWAY_DETAILS_WAN_PORT_PROPERTIES = ["rxRate", "txRate"]
 AP_DETAILS_PROPERTIES = ["ssidOverrides", "wlanId"]
 FIRMWARE_PROPERTIES = ["lastFwVer", "fwReleaseLog"]
+
+GATEWAY_PORT_TYPE_WAN = 0
 
 LOGGER = logging.getLogger(__name__)
 
@@ -221,11 +225,11 @@ class Device(APIItem):
 
     @property
     def tx_rate(self) -> int:
-        return int(self._raw.get("txRate", 0))
+        return int(self._raw.get("txRate", self._details.get("txRate", 0)))
 
     @property
     def rx_rate(self) -> int:
-        return int(self._raw.get("rxRate", 0))
+        return int(self._raw.get("rxRate", self._details.get("rxRate", 0)))
 
     def __repr__(self):
         name = self.name or self.mac
@@ -273,6 +277,15 @@ class Devices(APIItems):
 
     async def update_details(self, key: str, item: Device) -> None:
 
+        if item.type == "gateway":
+            gateway_details = await self._request("GET", GATEWAY_DETAILS_END_POINT.replace("%key", key))
+            if gateway_details and 'portStats' in gateway_details:
+                wan_port_stats = next((x for x in gateway_details['portStats'] if x['type'] == GATEWAY_PORT_TYPE_WAN), None)
+                if wan_port_stats:
+                    for prop in GATEWAY_DETAILS_WAN_PORT_PROPERTIES:
+                        if prop in wan_port_stats:
+                            item._details[prop] = wan_port_stats[prop]
+        
         if item.type == "ap":
             ap_details = await self._request("GET", AP_DETAILS_END_POINT.replace("%key", key))
             for prop in AP_DETAILS_PROPERTIES:

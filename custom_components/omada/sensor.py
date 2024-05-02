@@ -111,13 +111,23 @@ def device_upload_value_fn(controller: OmadaController, mac: str) -> float:
 @callback
 def device_rx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve device current rx rate and convert to MB/s"""
-    return round(controller.api.devices[mac].rx_rate / 1048576, 2)
+    if controller.api.devices[mac].type == "gateway":
+        # Gateway rx_rate comes in kB/s
+        return round(controller.api.devices[mac].rx_rate / 1024, 2)
+    else:
+        # Default device tx_rate comes in B/s
+        return round(controller.api.devices[mac].rx_rate / 1048576, 2)
 
 
 @callback
 def device_tx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve device current tx rate and convert to MB/s"""
-    return round(controller.api.devices[mac].tx_rate / 1048576, 2)
+    if controller.api.devices[mac].type == "gateway":
+        # Gateway tx_rate comes in kB/s
+        return round(controller.api.devices[mac].tx_rate / 1024, 2)
+    else:
+        # Default device tx_rate comes in B/s
+        return round(controller.api.devices[mac].tx_rate / 1048576, 2)
 
 
 @callback
