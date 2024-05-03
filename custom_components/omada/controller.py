@@ -17,21 +17,18 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity_registry import async_entries_for_config_entry
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.util import dt as dt_util
 
 from .api.controller import Controller
 from .api.errors import (LoginFailed, OmadaApiException,
                          OperationForbidden, RequestError, LoginRequired, UnknownSite)
-from .const import (CONF_SITE, CONF_SSID_FILTER, CONF_DISCONNECT_TIMEOUT, CONF_TRACK_CLIENTS,
+from .const import (CONF_SITE, CONF_SSID_FILTER, CONF_DISCONNECT_TIMEOUT,
+                    CONF_SCAN_INTERVAL, CONF_SCAN_INTERVAL_DETAILS, CONF_TRACK_CLIENTS,
                     CONF_TRACK_DEVICES, CONF_ENABLE_CLIENT_BANDWIDTH_SENSORS,
                     CONF_ENABLE_CLIENT_UPTIME_SENSORS, CONF_ENABLE_CLIENT_BLOCK_SWITCH,
                     CONF_ENABLE_DEVICE_BANDWIDTH_SENSORS, CONF_ENABLE_DEVICE_RADIO_UTILIZATION_SENSORS,
                     CONF_ENABLE_DEVICE_CONTROLS, CONF_ENABLE_DEVICE_STATISTICS_SENSORS,
                     CONF_ENABLE_DEVICE_CLIENTS_SENSORS, DOMAIN as OMADA_DOMAIN)
 from .omada_entity import OmadaEntity, OmadaEntityDescription
-
-SCAN_INTERVAL = timedelta(seconds=30)
-DETAILS_SCAN_INTERVAL = timedelta(seconds=120)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,6 +41,8 @@ class OmadaController:
         self.entities = {}
         self._on_close = []
         self._last_full_update: datetime = None
+        self.option_scan_interval = 30
+        self.option_scan_interval_details = 120
         self.option_track_clients = True
         self.option_track_devices = True
         self.option_ssid_filter = None
@@ -65,6 +64,8 @@ class OmadaController:
 
         self.option_ssid_filter = set(options.get(CONF_SSID_FILTER, []))
         self.option_disconnect_timeout = options.get(CONF_DISCONNECT_TIMEOUT, 0)
+        self.option_scan_interval = options.get(CONF_SCAN_INTERVAL, 30)
+        self.option_scan_interval_details = options.get(CONF_SCAN_INTERVAL_DETAILS, 120)
         self.option_track_clients = options.get(CONF_TRACK_CLIENTS, True)
         self.option_track_devices = options.get(CONF_TRACK_DEVICES, True)
         self.option_client_bandwidth_sensors = options.get(CONF_ENABLE_CLIENT_BANDWIDTH_SENSORS, False)
@@ -105,6 +106,14 @@ class OmadaController:
         return self._config_entry.data[CONF_DISCONNECT_TIMEOUT]
 
     @property
+    def scan_interval(self):
+        return timedelta(seconds=self.option_scan_interval)
+
+    @property
+    def scan_interval_details(self):
+        return timedelta(seconds=self.option_scan_interval_details)
+
+    @property
     def signal_update(self):
         return f"{OMADA_DOMAIN}-update-{self._config_entry.entry_id}"
 
@@ -127,7 +136,7 @@ class OmadaController:
         await self.async_update()
 
         self.async_on_close(async_track_time_interval(
-            self.hass, self.async_update, SCAN_INTERVAL))
+            self.hass, self.async_update, self.scan_interval))
 
         self._config_entry.add_update_listener(self.async_config_entry_updated)
 
@@ -137,7 +146,7 @@ class OmadaController:
 
         available = False
         update_all: bool = (event_time is None or self._last_full_update is None or
-                            self._last_full_update <= event_time - DETAILS_SCAN_INTERVAL)
+                            self._last_full_update <= event_time - self.scan_interval_details)
 
         for _ in range(2):
             try:
@@ -166,7 +175,7 @@ class OmadaController:
 
         self.available = available
         if update_all:
-            self._last_full_update = dt_util.now()
+            self._last_full_update = event_time  # use event time for last full update
 
         async_dispatcher_send(self.hass, self.signal_update)
 

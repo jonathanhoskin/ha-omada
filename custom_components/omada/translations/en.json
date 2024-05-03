@@ -24,10 +24,12 @@
     "step": {
       "device_tracker": {
         "data": {
+          "scan_interval": "Scan interval",
+          "scan_interval_details": "Scan interval details",
           "track_clients": "Enable client tracking",
           "track_devices": "Enable device tracking"
         },
-        "description": "Configure tracking",
+        "description": "Configure options",
         "title": "Omada Options"
       },
       "client_options": {

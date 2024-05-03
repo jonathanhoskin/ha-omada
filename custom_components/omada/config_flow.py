@@ -3,6 +3,11 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_URL, CONF_USERNAME, CONF_PASSWORD, CONF_VERIFY_SSL
 from homeassistant.core import callback
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .api.errors import (
     LoginFailed,
@@ -19,6 +24,8 @@ from .const import (
     CONF_SITE,
     CONF_SSID_FILTER,
     CONF_DISCONNECT_TIMEOUT,
+    CONF_SCAN_INTERVAL,
+    CONF_SCAN_INTERVAL_DETAILS,
     CONF_TRACK_CLIENTS,
     CONF_TRACK_DEVICES,
     CONF_ENABLE_CLIENT_BANDWIDTH_SENSORS,
@@ -145,6 +152,22 @@ class OmadaOptionsFlowHandler(config_entries.OptionsFlow):
             step_id="device_tracker",
             data_schema=vol.Schema(
                 {
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL,
+                        default=self.controller.option_scan_interval,
+                    ): NumberSelector(
+                        NumberSelectorConfig(
+                            min=30, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
+                        )
+                    ),
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL_DETAILS,
+                        default=self.controller.option_scan_interval_details,
+                    ): NumberSelector(
+                        NumberSelectorConfig(
+                            min=30, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
+                        )
+                    ),
                     vol.Optional(
                         CONF_TRACK_CLIENTS, default=self.controller.option_track_clients
                     ): bool,
