@@ -157,7 +157,7 @@ class OmadaOptionsFlowHandler(config_entries.OptionsFlow):
                         default=self.controller.option_scan_interval,
                     ): NumberSelector(
                         NumberSelectorConfig(
-                            min=30, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
+                            min=10, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
                         )
                     ),
                     vol.Optional(
@@ -165,7 +165,7 @@ class OmadaOptionsFlowHandler(config_entries.OptionsFlow):
                         default=self.controller.option_scan_interval_details,
                     ): NumberSelector(
                         NumberSelectorConfig(
-                            min=30, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
+                            min=10, mode=NumberSelectorMode.BOX, unit_of_measurement="seconds"
                         )
                     ),
                     vol.Optional(

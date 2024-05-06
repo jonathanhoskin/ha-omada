@@ -90,6 +90,11 @@ class OmadaController:
         return self._config_entry.data[CONF_URL]
 
     @property
+    def req_timeout(self):
+        # Make sure the request timeout is less than the scan interval
+        return int(self.option_scan_interval) - 1
+
+    @property
     def site(self):
         return self._config_entry.data[CONF_SITE]
 
@@ -124,7 +129,7 @@ class OmadaController:
     async def async_setup(self):
         try:
             self.api = await get_api_controller(
-                self.hass, self.url, self.username, self.password, self.site, self.verify_ssl
+                self.hass, self.url, self.username, self.password, self.req_timeout, self.site, self.verify_ssl
             )
         except LoginFailed as err:
             raise ConfigEntryAuthFailed from err
@@ -280,7 +285,7 @@ class OmadaController:
         async_dispatcher_send(hass, controller.signal_options_update)
 
 
-async def get_api_controller(hass, url, username, password, site, verify_ssl):
+async def get_api_controller(hass, url, username, password, req_timeout, site, verify_ssl):
     ssl_context = None
 
     if verify_ssl:
@@ -292,7 +297,7 @@ async def get_api_controller(hass, url, username, password, site, verify_ssl):
             hass, verify_ssl=verify_ssl, cookie_jar=CookieJar(unsafe=True)
         )
 
-    controller = Controller(url, username, password,
+    controller = Controller(url, username, password, req_timeout,
                             session, site=site, ssl_context=ssl_context)
 
     try:

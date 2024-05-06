@@ -29,6 +29,7 @@ class Controller:
             url: str,
             username: str,
             password: str,
+            req_timeout: int,
             websession: ClientSession,
             site: str = "Default",
             ssl_context=None,
@@ -41,6 +42,7 @@ class Controller:
         self.controller_id = None
         self._username = username
         self._password = password
+        self._req_timeout = req_timeout
         self._session = websession
         self._ssl_context = ssl_context
         self._site_id = None
@@ -204,7 +206,7 @@ class Controller:
         LOGGER.debug("Requesting: %s - Params: %s - JSON: %s - Headers %s", url, params, json, headers)
 
         try:
-            with async_timeout.timeout(30):
+            with async_timeout.timeout(self._req_timeout):
                 async with self._session.request(
                         method,
                         url,
