@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import logging
 
 from collections.abc import Callable
@@ -64,7 +65,8 @@ def controller_connected_clients_extra_attributes_fn(controller: OmadaController
     if controller.api.clients:
         # Convert list of clients to list of dicts with minimal attributes
         client_keys = ["mac", "name", "ip"]
-        attributes["clients"] = [{k: d[k] for k in d if k in client_keys} for d in [c._raw for c in controller.api.clients.connected_clients]]
+        clients = [{k: d[k] for k in d if k in client_keys} for d in [c._raw for c in controller.api.clients.connected_clients]]
+        attributes["clients"] = sorted(clients, key=lambda x: ipaddress.IPv4Address(x["ip"]))
     return attributes
 
 
