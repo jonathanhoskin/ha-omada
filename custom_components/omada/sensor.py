@@ -73,7 +73,7 @@ def client_upload_value_fn(controller: OmadaController, mac: str) -> float:
 def client_rx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve client current rx rate and convert to MB/s"""
     if mac in controller.api.clients:
-        return round(controller.api.clients[mac].rx_rate / 1048576, 2)
+        return round(controller.api.clients[mac].rx_rate / 1048576, 3)
     else:
         return 0
 
@@ -82,7 +82,7 @@ def client_rx_value_fn(controller: OmadaController, mac: str) -> float:
 def client_tx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve client current tx rate and convert to MB/s"""
     if mac in controller.api.clients:
-        return round(controller.api.clients[mac].tx_rate / 1048576, 2)
+        return round(controller.api.clients[mac].tx_rate / 1048576, 3)
     else:
         return 0
 
@@ -113,10 +113,10 @@ def device_rx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve device current rx rate and convert to MB/s"""
     if controller.api.devices[mac].type == "gateway":
         # Gateway rx_rate comes in kB/s
-        return round(controller.api.devices[mac].rx_rate / 1024, 2)
+        return round(controller.api.devices[mac].rx_rate / 1024, 3)
     else:
         # Default device tx_rate comes in B/s
-        return round(controller.api.devices[mac].rx_rate / 1048576, 2)
+        return round(controller.api.devices[mac].rx_rate / 1048576, 3)
 
 
 @callback
@@ -124,10 +124,10 @@ def device_tx_value_fn(controller: OmadaController, mac: str) -> float:
     """Retrieve device current tx rate and convert to MB/s"""
     if controller.api.devices[mac].type == "gateway":
         # Gateway tx_rate comes in kB/s
-        return round(controller.api.devices[mac].tx_rate / 1024, 2)
+        return round(controller.api.devices[mac].tx_rate / 1024, 3)
     else:
         # Default device tx_rate comes in B/s
-        return round(controller.api.devices[mac].tx_rate / 1048576, 2)
+        return round(controller.api.devices[mac].tx_rate / 1048576, 3)
 
 
 @callback
