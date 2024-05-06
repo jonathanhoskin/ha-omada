@@ -5,7 +5,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, Mapping
 
 from homeassistant.components.sensor import (DOMAIN, SensorDeviceClass, SensorEntity,
                                              SensorEntityDescription)
@@ -18,9 +18,13 @@ from homeassistant.util import dt as dt_util
 from .controller import OmadaController
 
 from .const import (DOMAIN as OMADA_DOMAIN, CLIENTS)
+from .omada_controller_entity import (OmadaControllerEntity, OmadaControllerEntityDescription,
+                                      device_info_fn as controller_device_info_fn,
+                                      unique_id_fn as controller_unique_id_fn)
 from .omada_entity import (OmadaEntity, OmadaEntityDescription, device_device_info_fn,
                            client_device_info_fn, unique_id_fn)
 
+CONNECTED_CLIENTS_SENSOR = "connected_clients"
 DOWNLOAD_SENSOR = "downloaded"
 UPLOAD_SENSOR = "uploaded"
 UPTIME_SENSOR = "uptime"
@@ -45,6 +49,23 @@ INTER_UTILIZATION_5G_SENSOR = "5ghz_interference_utilization"
 INTER_UTILIZATION_6G_SENSOR = "6ghz_interference_utilization"
 
 LOGGER = logging.getLogger(__name__)
+
+
+@callback
+def controller_connected_clients_value_fn(controller: OmadaController) -> int:
+    """Retrieve the number of connected clients"""
+    return len(controller.api.clients.connected_clients) if controller.api.clients else 0
+
+
+@callback
+def controller_connected_clients_extra_attributes_fn(controller: OmadaController) -> Mapping[str, Any]:
+    """Retrieve the extra attributes for the connected clients"""
+    attributes = {}
+    if controller.api.clients:
+        # Convert list of clients to list of dicts with minimal attributes
+        client_keys = ["mac", "name", "ip"]
+        attributes["clients"] = [{k: d[k] for k in d if k in client_keys} for d in [c._raw for c in controller.api.clients.connected_clients]]
+    return attributes
 
 
 @callback
@@ -239,6 +260,25 @@ def device_inter_utilization_6g_value_fn(controller: OmadaController, mac: str) 
 
 
 @dataclass
+class OmadaControllerSensorEntityDescriptionMixin:
+    value_fn: Callable[[OmadaController], Any | None]
+    extra_attributes_fn: Callable[[OmadaController], Mapping[str, Any] | None]
+
+
+@dataclass
+class OmadaControllerSensorEntityDescription(
+    SensorEntityDescription,
+    OmadaControllerEntityDescription,
+    OmadaControllerSensorEntityDescriptionMixin,
+):
+    """Omada Controller Sensor Entity Description"""
+
+    should_update_fn: Callable[[
+        Any, Any], bool] | None = lambda prev_value, next_value: prev_value != next_value
+    value_format_fn: Callable[[Any], Any] | None = None
+
+
+@dataclass
 class OmadaSensorEntityDescriptionMixin():
     value_fn: Callable[[OmadaController, str], float | int | None]
 
@@ -255,6 +295,21 @@ class OmadaSensorEntityDescription(
         Any, Any], bool] | None = lambda prev_value, next_value: prev_value != next_value
     value_format_fn: Callable[[Any], Any] | None = None
 
+
+CONTROLLER_ENTITY_DESCRIPTIONS: Dict[str, OmadaControllerSensorEntityDescription] = {
+    CONNECTED_CLIENTS_SENSOR: OmadaControllerSensorEntityDescription(
+        domain=DOMAIN,
+        key=CONNECTED_CLIENTS_SENSOR,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        has_entity_name=True,
+        available_fn=lambda controller: controller.available,
+        device_info_fn=controller_device_info_fn,
+        name_fn=lambda *_: "Connected Clients",
+        unique_id_fn=controller_unique_id_fn,
+        value_fn=controller_connected_clients_value_fn,
+        extra_attributes_fn=controller_connected_clients_extra_attributes_fn
+    ),
+}
 
 CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
     DOWNLOAD_SENSOR: OmadaSensorEntityDescription(
@@ -688,6 +743,11 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
 async def async_setup_entry(hass, config_entry, async_add_entities):
     controller: OmadaController = hass.data[OMADA_DOMAIN][config_entry.entry_id]
 
+    # Add controller sensors
+    for description in CONTROLLER_ENTITY_DESCRIPTIONS.values():
+        entity = OmadaControllerSensorEntity(controller, description)
+        async_add_entities([entity])
+
     @callback
     def items_added() -> None:
 
@@ -722,6 +782,54 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         )
 
     items_added()
+
+
+class OmadaControllerSensorEntity(OmadaControllerEntity, SensorEntity):
+    controller: OmadaController
+    entity_description: OmadaControllerSensorEntityDescription
+    _internal_value: Any | None = None
+
+    def __init__(
+        self, controller: OmadaController, description: OmadaControllerEntityDescription
+    ) -> None:
+
+        super().__init__(controller, description)
+
+        self.update_value(force_update=True)
+
+    def update_value(self, force_update=False) -> bool:
+        """Update value. Returns true if state should update."""
+        prev_value = None
+        if self.entity_description.value_format_fn is not None:
+            prev_value = self._internal_value
+        else:
+            prev_value = self._attr_native_value
+
+        next_value = self.entity_description.value_fn(self.controller)
+
+        if force_update or self.entity_description.should_update_fn(prev_value, next_value):
+            if self.entity_description.value_format_fn != None:
+                self._internal_value = next_value
+                next_value = self.entity_description.value_format_fn(
+                    next_value)
+
+            self._attr_native_value = next_value
+
+            return True
+
+        return False
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any] | None:
+        if self.entity_description.extra_attributes_fn is not None:
+            return self.entity_description.extra_attributes_fn(self.controller)
+        
+        return None
+    
+    @callback
+    async def async_update(self):
+        if self.update_value():
+            await super().async_update()
 
 
 class OmadaSensorEntity(OmadaEntity, SensorEntity):

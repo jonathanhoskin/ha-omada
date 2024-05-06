@@ -25,6 +25,10 @@ class Clients(APIItems):
     def __init__(self, request):
         super().__init__(request, END_POINT, "mac", Client, data_key="data")
 
+    @property
+    def connected_clients(self) -> "list[Client]":
+        return [item for item in self.items.values()]
+
 
 class Client(APIItem):
     """Defines all the properties for a Client"""
