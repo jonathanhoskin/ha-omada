@@ -25,7 +25,6 @@ from .omada_controller_entity import (OmadaControllerEntity, OmadaControllerEnti
 from .omada_entity import (OmadaEntity, OmadaEntityDescription, device_device_info_fn,
                            client_device_info_fn, unique_id_fn)
 
-CONNECTED_CLIENTS_SENSOR = "connected_clients"
 DOWNLOAD_SENSOR = "downloaded"
 UPLOAD_SENSOR = "uploaded"
 UPTIME_SENSOR = "uptime"
@@ -53,19 +52,18 @@ LOGGER = logging.getLogger(__name__)
 
 
 @callback
-def controller_connected_clients_value_fn(controller: OmadaController) -> int:
-    """Retrieve the number of connected clients"""
-    return len(controller.api.clients.connected_clients) if controller.api.clients else 0
+def controller_clients_value_fn(controller: OmadaController) -> int:
+    """Retrieve the number of clients"""
+    return controller.api.clients.__len__() if controller.api.clients else 0
 
 
 @callback
-def controller_connected_clients_extra_attributes_fn(controller: OmadaController) -> Mapping[str, Any]:
-    """Retrieve the extra attributes for the connected clients"""
+def controller_clients_extra_attributes_fn(controller: OmadaController) -> Mapping[str, Any]:
+    """Retrieve the extra attributes for the clients"""
     attributes = {}
     if controller.api.clients:
         # Convert list of clients to list of dicts with minimal attributes
-        client_keys = ["mac", "name", "ip"]
-        clients = [{k: d[k] for k in d if k in client_keys} for d in [c._raw for c in controller.api.clients.connected_clients]]
+        clients = [{"mac": c.mac, "name": c.name, "ip": c.ip} for c in controller.api.clients.items.values()]
         attributes["clients"] = sorted(clients, key=lambda x: ipaddress.IPv4Address(x["ip"]))
     return attributes
 
@@ -299,17 +297,17 @@ class OmadaSensorEntityDescription(
 
 
 CONTROLLER_ENTITY_DESCRIPTIONS: Dict[str, OmadaControllerSensorEntityDescription] = {
-    CONNECTED_CLIENTS_SENSOR: OmadaControllerSensorEntityDescription(
+    CLIENTS_SENSOR: OmadaControllerSensorEntityDescription(
         domain=DOMAIN,
-        key=CONNECTED_CLIENTS_SENSOR,
+        key=CLIENTS_SENSOR,
         entity_category=EntityCategory.DIAGNOSTIC,
         has_entity_name=True,
         available_fn=lambda controller: controller.available,
         device_info_fn=controller_device_info_fn,
-        name_fn=lambda *_: "Connected Clients",
+        name_fn=lambda *_: "Clients",
         unique_id_fn=controller_unique_id_fn,
-        value_fn=controller_connected_clients_value_fn,
-        extra_attributes_fn=controller_connected_clients_extra_attributes_fn
+        value_fn=controller_clients_value_fn,
+        extra_attributes_fn=controller_clients_extra_attributes_fn
     ),
 }
 
