@@ -252,7 +252,7 @@ class OmadaController:
                 entry_type = unique_id[0]
                 mac = len(unique_id) > 1 and unique_id[1] or ""
 
-                description: OmadaEntityDescription
+                description = None
 
                 if entry_type in descriptions:
                     description = descriptions[entry_type]
@@ -260,7 +260,7 @@ class OmadaController:
                     mac = entry.unique_id
                     description = descriptions[default_description_key]
 
-                if mac not in ignore_macs:
+                if isinstance(description, OmadaEntityDescription) and mac not in ignore_macs:
                     if mac not in active_macs and mac in stored_macs:
                         if not description.domain in self.entities:
                             self.entities[description.domain] = {}

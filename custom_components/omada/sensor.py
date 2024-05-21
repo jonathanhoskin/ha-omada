@@ -75,7 +75,7 @@ def client_download_value_fn(controller: OmadaController, mac: str) -> float:
     known_bandwidth = controller.api.known_clients[mac].download
     if mac in controller.api.clients:
         known_bandwidth += controller.api.clients[mac].traffic_down
-    
+
     return round(known_bandwidth / 1048576, 2)
 
 
@@ -86,7 +86,7 @@ def client_upload_value_fn(controller: OmadaController, mac: str) -> float:
     known_bandwidth = controller.api.known_clients[mac].upload
     if mac in controller.api.clients:
         known_bandwidth += controller.api.clients[mac].traffic_up
-    
+
     return round(known_bandwidth / 1048576, 2)
 
 
@@ -301,6 +301,7 @@ CONTROLLER_ENTITY_DESCRIPTIONS: Dict[str, OmadaControllerSensorEntityDescription
         domain=DOMAIN,
         key=CLIENTS_SENSOR,
         entity_category=EntityCategory.DIAGNOSTIC,
+        native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
         available_fn=lambda controller: controller.available,
         device_info_fn=controller_device_info_fn,
@@ -823,9 +824,9 @@ class OmadaControllerSensorEntity(OmadaControllerEntity, SensorEntity):
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         if self.entity_description.extra_attributes_fn is not None:
             return self.entity_description.extra_attributes_fn(self.controller)
-        
+
         return None
-    
+
     @callback
     async def async_update(self):
         if self.update_value():

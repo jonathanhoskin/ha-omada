@@ -21,7 +21,7 @@ RADIO = [
 ]
 
 
-class Clients(APIItems): 
+class Clients(APIItems):
     def __init__(self, request):
         super().__init__(request, END_POINT, "mac", Client, data_key="data")
 
