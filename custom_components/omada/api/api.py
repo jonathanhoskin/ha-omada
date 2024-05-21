@@ -86,3 +86,6 @@ class APIItems:
 
     def __iter__(self):
         return self.items.__iter__()
+
+    def __len__(self):
+        return self.items.__len__()
