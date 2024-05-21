@@ -39,9 +39,6 @@ CONNECTED_CLIENT_ATTRIBUTES = (
     "channel",
     "radio",
     "wifi_mode",
-    "signal_level",
-    "rssi",
-    "power_save",
     "guest"
 )
 

@@ -10,7 +10,9 @@ from typing import Dict, Any, Mapping
 
 from homeassistant.components.sensor import (DOMAIN, SensorDeviceClass, SensorEntity,
                                              SensorEntityDescription)
-from homeassistant.const import UnitOfInformation, UnitOfDataRate, PERCENTAGE
+from homeassistant.const import (UnitOfInformation, UnitOfDataRate,
+                                 SIGNAL_STRENGTH_DECIBELS,
+                                 SIGNAL_STRENGTH_DECIBELS_MILLIWATT, PERCENTAGE)
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -30,6 +32,8 @@ UPLOAD_SENSOR = "uploaded"
 UPTIME_SENSOR = "uptime"
 RX_SENSOR = "rx"
 TX_SENSOR = "tx"
+RSSI_SENSOR = "rssi"
+SNR_SENSOR = "snr"
 CPU_USAGE_SENSOR = "cpu_usage"
 MEMORY_USAGE_SENSOR = "memory_usage"
 CLIENTS_SENSOR = "clients"
@@ -106,7 +110,22 @@ def client_tx_value_fn(controller: OmadaController, mac: str) -> float:
         return round(controller.api.clients[mac].tx_rate / 1048576, 3)
     else:
         return 0
-
+    
+@callback
+def client_rssi_value_fn(controller: OmadaController, mac: str) -> float:
+    """Retrieve client current RSSI"""
+    if mac in controller.api.clients:
+        return round(controller.api.clients[mac].rssi)
+    else:
+        return 0
+    
+@callback
+def client_snr_value_fn(controller: OmadaController, mac: str) -> float:
+    """Retrieve client current SNR"""
+    if mac in controller.api.clients:
+        return round(controller.api.clients[mac].snr)
+    else:
+        return 0
 
 @callback
 def client_uptime_value_fn(controller: OmadaController, mac: str) -> int:
@@ -376,6 +395,38 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         name_fn=lambda *_: "TX Activity",
         unique_id_fn=unique_id_fn,
         value_fn=client_tx_value_fn
+    ),
+    RSSI_SENSOR: OmadaSensorEntityDescription(
+        domain=DOMAIN,
+        key=RSSI_SENSOR,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+        has_entity_name=True,
+        allowed_fn=lambda controller, mac: (controller.option_device_clients_sensors and
+                                            controller.option_track_clients and
+                                            controller.is_client_allowed(mac)),
+        supported_fn=lambda controller, mac: controller.api.known_clients[mac].wireless,
+        available_fn=lambda controller, _: controller.available,
+        device_info_fn=client_device_info_fn,
+        name_fn=lambda *_: "RSSI",
+        unique_id_fn=unique_id_fn,
+        value_fn=client_rssi_value_fn
+    ),
+    SNR_SENSOR: OmadaSensorEntityDescription(
+        domain=DOMAIN,
+        key=SNR_SENSOR,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS,
+        has_entity_name=True,
+        allowed_fn=lambda controller, mac: (controller.option_device_clients_sensors and
+                                            controller.option_track_clients and
+                                            controller.is_client_allowed(mac)),
+        supported_fn=lambda controller, mac: controller.api.known_clients[mac].wireless,
+        available_fn=lambda controller, _: controller.available,
+        device_info_fn=client_device_info_fn,
+        name_fn=lambda *_: "SNR",
+        unique_id_fn=unique_id_fn,
+        value_fn=client_snr_value_fn
     ),
     UPTIME_SENSOR: OmadaSensorEntityDescription(
         domain=DOMAIN,

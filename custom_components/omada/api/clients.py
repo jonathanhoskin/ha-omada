@@ -107,7 +107,11 @@ class Client(APIItem):
 
     @property
     def rssi(self) -> int | None:
-        return self._raw.get("rssi")
+        return self._raw.get("rssi", None)
+
+    @property
+    def snr(self) -> int | None:
+        return self._raw.get("snr", None)
 
     @property
     def activity(self) -> int:
