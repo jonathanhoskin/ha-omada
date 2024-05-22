@@ -96,6 +96,7 @@ class OmadaFlowHandler(config_entries.ConfigFlow, domain=OMADA_DOMAIN):
                     self.config[CONF_URL],
                     self.config[CONF_USERNAME],
                     self.config[CONF_PASSWORD],
+                    30,
                     self.config[CONF_SITE],
                     self.config[CONF_VERIFY_SSL],
                 )
