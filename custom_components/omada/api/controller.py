@@ -239,7 +239,7 @@ class Controller:
         except TimeoutError:
             raise RequestTimeout(url)
         except client_exceptions.ClientConnectorCertificateError as err:
-            raise SSLError(f"Error connecting to {url}: {err}")
+            raise SSLError(url, err)
         except client_exceptions.InvalidURL:
             raise InvalidURLError(url, "Invalid URL")
         except client_exceptions.ClientError as err:
