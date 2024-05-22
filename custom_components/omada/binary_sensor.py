@@ -105,6 +105,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaBinarySensorEntityDescription] = {
         key=POWER_SAVE_SENSOR,
         entity_category=EntityCategory.DIAGNOSTIC,
         has_entity_name=True,
+        icon="mdi:leaf",
         allowed_fn=lambda controller, mac: (controller.option_device_clients_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),

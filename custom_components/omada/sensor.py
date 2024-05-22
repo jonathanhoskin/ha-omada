@@ -338,6 +338,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfInformation.MEGABYTES,
         has_entity_name=True,
+        icon="mdi:download",
         allowed_fn=lambda controller, mac: (controller.option_client_bandwidth_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -354,6 +355,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfInformation.MEGABYTES,
         has_entity_name=True,
+        icon="mdi:upload",
         allowed_fn=lambda controller, mac: (controller.option_client_bandwidth_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -370,6 +372,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfDataRate.MEGABYTES_PER_SECOND,
         has_entity_name=True,
+        icon="mdi:download",
         allowed_fn=lambda controller, mac: (controller.option_client_bandwidth_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -386,6 +389,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfDataRate.MEGABYTES_PER_SECOND,
         has_entity_name=True,
+        icon="mdi:upload",
         allowed_fn=lambda controller, mac: (controller.option_client_bandwidth_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -402,6 +406,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
         has_entity_name=True,
+        icon="mdi:signal",
         allowed_fn=lambda controller, mac: (controller.option_device_clients_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -418,6 +423,7 @@ CLIENT_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS,
         has_entity_name=True,
+        icon="mdi:signal",
         allowed_fn=lambda controller, mac: (controller.option_device_clients_sensors and
                                             controller.option_track_clients and
                                             controller.is_client_allowed(mac)),
@@ -459,6 +465,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfInformation.MEGABYTES,
         has_entity_name=True,
+        icon="mdi:download",
         allowed_fn=lambda controller, _: (controller.option_device_bandwidth_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -474,6 +481,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfInformation.MEGABYTES,
         has_entity_name=True,
+        icon="mdi:upload",
         allowed_fn=lambda controller, _: (controller.option_device_bandwidth_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -489,6 +497,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfDataRate.MEGABYTES_PER_SECOND,
         has_entity_name=True,
+        icon="mdi:download",
         allowed_fn=lambda controller, _: (controller.option_device_bandwidth_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -504,6 +513,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=UnitOfDataRate.MEGABYTES_PER_SECOND,
         has_entity_name=True,
+        icon="mdi:upload",
         allowed_fn=lambda controller, _: (controller.option_device_bandwidth_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -519,6 +529,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:chip",
         allowed_fn=lambda controller, _: (controller.option_device_statistics_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -534,6 +545,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:memory",
         allowed_fn=lambda controller, _: (controller.option_device_statistics_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -570,6 +582,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -585,6 +598,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_2ghz,
@@ -600,6 +614,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_5ghz,
@@ -615,6 +630,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_6ghz,
@@ -630,6 +646,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].type == "ap",
@@ -645,6 +662,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=CLIENTS,
         has_entity_name=True,
+        icon="mdi:devices",
         allowed_fn=lambda controller, _: (controller.option_device_clients_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].type == "ap",
@@ -660,6 +678,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -675,6 +694,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_5ghz,
@@ -690,6 +710,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_6ghz,
@@ -705,6 +726,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_2ghz,
@@ -720,6 +742,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_5ghz,
@@ -735,6 +758,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_6ghz,
@@ -750,6 +774,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda *_: True,
@@ -765,6 +790,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_5ghz,
@@ -780,6 +806,7 @@ DEVICE_ENTITY_DESCRIPTIONS: Dict[str, OmadaSensorEntityDescription] = {
         entity_category=EntityCategory.DIAGNOSTIC,
         native_unit_of_measurement=PERCENTAGE,
         has_entity_name=True,
+        icon="mdi:signal-variant",
         allowed_fn=lambda controller, _: (controller.option_device_radio_utilization_sensors and
                                           controller.option_track_devices),
         supported_fn=lambda controller, mac: controller.api.devices[mac].radio_enabled_6ghz,
