@@ -112,20 +112,20 @@ def client_tx_value_fn(controller: OmadaController, mac: str) -> float:
         return 0
     
 @callback
-def client_rssi_value_fn(controller: OmadaController, mac: str) -> float:
+def client_rssi_value_fn(controller: OmadaController, mac: str) -> float | None:
     """Retrieve client current RSSI"""
-    if mac in controller.api.clients:
+    if mac in controller.api.clients and controller.api.clients[mac].rssi is not None:
         return round(controller.api.clients[mac].rssi)
     else:
-        return 0
+        return None
     
 @callback
-def client_snr_value_fn(controller: OmadaController, mac: str) -> float:
+def client_snr_value_fn(controller: OmadaController, mac: str) -> float | None:
     """Retrieve client current SNR"""
-    if mac in controller.api.clients:
+    if mac in controller.api.clients and controller.api.clients[mac].snr is not None:
         return round(controller.api.clients[mac].snr)
     else:
-        return 0
+        return None
 
 @callback
 def client_uptime_value_fn(controller: OmadaController, mac: str) -> int:
