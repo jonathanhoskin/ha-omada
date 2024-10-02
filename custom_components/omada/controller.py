@@ -12,10 +12,10 @@ from homeassistant.const import (
     CONF_PASSWORD, CONF_URL, CONF_USERNAME, CONF_VERIFY_SSL)
 from homeassistant.core import CALLBACK_TYPE, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
-from homeassistant.helpers import aiohttp_client, entity_registry
+from homeassistant.helpers import aiohttp_client, entity_registry, device_registry
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity_registry import async_entries_for_config_entry
+from homeassistant.helpers.entity_registry import async_entries_for_config_entry, async_entries_for_device
 from homeassistant.helpers.event import async_track_time_interval
 
 from .api.controller import Controller
@@ -245,6 +245,7 @@ class OmadaController:
         entities: list[OmadaEntity] = []
 
         er = entity_registry.async_get(self.hass)
+        dr = device_registry.async_get(self.hass)
 
         for entry in async_entries_for_config_entry(er, config_entry.entry_id):
             if entry.domain == domain:
@@ -272,7 +273,38 @@ class OmadaController:
                             entities.append(entity)
                     elif (mac not in stored_macs or not description.allowed_fn(self, mac)
                           or not description.supported_fn(self, mac)):
-                        er.async_remove(entry.entity_id)
+
+                        # Remove device entry if we are the last entity
+                        device_entry = dr.async_get(entry.device_id)
+                        if (
+                            device_entry and 
+                            len(
+                                entries_for_device := async_entries_for_device(
+                                    er, entry.device_id, include_disabled_entities=True
+                            )) == 1
+                        ):
+                            er.async_remove(entry.entity_id)
+                            dr.async_remove_device(device_entry.id)
+                        
+                        # Remove Omada from device if other entries exist
+                        elif (
+                            len(
+                                entries_for_device_from_this_config_entry := [
+                                    entry_for_device
+                                    for entry_for_device in entries_for_device
+                                    if entry_for_device.config_entry_id
+                                    == self._config_entry.entry_id
+                                ]
+                            ) != len(entries_for_device)
+                            and len(entries_for_device_from_this_config_entry) == 1
+                        ):
+                            er.async_remove(entry.entity_id)
+                            dr.async_update_device(
+                                entry.device_id,
+                                remove_config_entry_id=self._config_entry.entry_id,
+                            )
+                        else:
+                            er.async_remove(entry.entity_id)
 
         async_add_entities(entities)
 

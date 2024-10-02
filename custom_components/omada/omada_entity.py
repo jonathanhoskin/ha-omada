@@ -97,7 +97,7 @@ class OmadaEntity(Entity):
     async def async_added_to_hass(self) -> None:
         for signal, method in (
             (self.controller.signal_options_update, self.options_updated),
-            (self.controller.signal_update, self.async_update)
+            (self.controller.signal_update, self.handle_signal_update)
         ):
             self.async_on_remove(
                 async_dispatcher_connect(self.hass, signal, method))
@@ -105,6 +105,15 @@ class OmadaEntity(Entity):
     async def async_will_remove_from_hass(self) -> None:
         self.controller.entities[self.entity_description.domain][self.entity_description.key].remove(
             self._mac)
+        
+    @callback
+    async def handle_signal_update(self):
+        if (self._mac not in self.controller.api.known_clients and
+            self._mac not in self.controller.api.devices and
+            self._mac not in self.controller.api.clients):
+            await self.remove() # Remove entity if device no longer exists in Omada
+        else:
+            await self.async_update()
 
     @callback
     async def async_update(self):
@@ -127,6 +136,7 @@ class OmadaEntity(Entity):
         dr = device_registry.async_get(self.hass)
         device_entry = dr.async_get(entity_entry.device_id)
         if not device_entry:
+            await self.async_remove(force_remove=True)
             er.async_remove(self.entity_id)
             return
 
@@ -139,7 +149,9 @@ class OmadaEntity(Entity):
                 )
             )
         ) == 1:
+            er.async_remove(self.entity_id)
             dr.async_remove_device(device_entry.id)
+            await self.async_remove(force_remove=True)
             return
 
         if (
@@ -160,3 +172,4 @@ class OmadaEntity(Entity):
             )
 
         er.async_remove(self.entity_id)
+        await self.async_remove(force_remove=True)
