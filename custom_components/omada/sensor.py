@@ -68,7 +68,7 @@ def controller_clients_extra_attributes_fn(controller: OmadaController) -> Mappi
     if controller.api.clients:
         # Convert list of clients to list of dicts with minimal attributes
         clients = [{"mac": c.mac, "name": c.name, "ip": c.ip} for c in controller.api.clients.items.values()]
-        attributes["clients"] = sorted(clients, key=lambda x: ipaddress.IPv4Address(x["ip"]))
+        attributes["clients"] = sorted(clients, key=lambda x: ipaddress.ip_address(x["ip"] if x["ip"] else "0.0.0.0"))
     return attributes
 
 
