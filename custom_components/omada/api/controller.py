@@ -1,5 +1,5 @@
 import logging
-import async_timeout
+import asyncio
 
 from dataclasses import dataclass
 from asyncio.exceptions import TimeoutError
@@ -206,7 +206,7 @@ class Controller:
         LOGGER.debug("Requesting: %s - Params: %s - JSON: %s - Headers %s", url, params, json, headers)
 
         try:
-            with async_timeout.timeout(self._req_timeout):
+            async with asyncio.timeout(self._req_timeout):
                 async with self._session.request(
                         method,
                         url,
