@@ -3,6 +3,7 @@ from .api import (APIItems, APIItem)
 END_POINT = "/clients"
 
 WIFI_MODE = [
+    "Unknown",
     "11a",
     "11b",
     "11g",
