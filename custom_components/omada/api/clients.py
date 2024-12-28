@@ -75,7 +75,8 @@ class Client(APIItem):
 
     @property
     def wifi_mode(self) -> str:
-        return WIFI_MODE[self._raw.get("wifiMode", 0)]
+        mode = self._raw.get("wifiMode", 0)
+        return WIFI_MODE[mode] if 0 <= mode < len(WIFI_MODE) else "Unknown"
 
     @property
     def ap_name(self) -> str | None:
