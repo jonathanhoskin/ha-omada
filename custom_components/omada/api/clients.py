@@ -22,6 +22,9 @@ RADIO = [
     "6ghz"
 ]
 
+CONNECT_TYPE_WIRELESS_GUEST = 0
+CONNECT_TYPE_WIRELESS_USER = 1
+CONNECT_TYPE_WIRED_USER = 2
 
 class Clients(APIItems):
     def __init__(self, request):
