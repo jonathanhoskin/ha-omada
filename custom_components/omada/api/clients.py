@@ -3,7 +3,6 @@ from .api import (APIItems, APIItem)
 END_POINT = "/clients"
 
 WIFI_MODE = [
-    "Unknown",
     "11a",
     "11b",
     "11g",
@@ -11,7 +10,9 @@ WIFI_MODE = [
     "11ng",
     "11ac",
     "11axa",
-    "11axg"
+    "11axg",
+    "11beg",
+    "11bea"
 ]
 
 RADIO = [
