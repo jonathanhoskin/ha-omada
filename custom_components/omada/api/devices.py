@@ -280,7 +280,11 @@ class Devices(APIItems):
         if item.type == "gateway":
             gateway_details = await self._request("GET", GATEWAY_DETAILS_END_POINT.replace("%key", key))
             if gateway_details and 'portStats' in gateway_details:
-                wan_port_stats = next((x for x in gateway_details['portStats'] if x['type'] == GATEWAY_PORT_TYPE_WAN), None)
+                # Omada 6 marks WAN ports with mode 0 (type is the port hardware, e.g. 3 = SFP+).
+                # Older controllers used type 0. Prefer the WAN port that is online.
+                wans = [x for x in gateway_details['portStats']
+                        if x.get('mode') == GATEWAY_PORT_TYPE_WAN or x.get('type') == GATEWAY_PORT_TYPE_WAN]
+                wan_port_stats = next((x for x in wans if x.get('internetState') == 1), wans[0] if wans else None)
                 if wan_port_stats:
                     for prop in GATEWAY_DETAILS_WAN_PORT_PROPERTIES:
                         if prop in wan_port_stats:
